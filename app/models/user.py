@@ -23,6 +23,7 @@ class User(Base):
     
     # ListingMessage relationships
     listing_messages = relationship("ListingMessage", back_populates="user", cascade="all, delete-orphan")
+    baskets = relationship("Basket", back_populates="user", cascade="all, delete-orphan")
 
     def set_password(self, password: str):
         """Hash and set the user's password"""
