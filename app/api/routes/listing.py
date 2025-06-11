@@ -2,9 +2,10 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from app.core.database import get_db
-from app.models import Listing
+from app.models import Listing, User, Category
 from app.schemas import ListingCreate, ListingUpdate, ListingResponse
 from app.api.routes.base import BaseRouter
+from sqlalchemy import select, func
 
 class ListingRouter(BaseRouter[Listing, ListingCreate, ListingUpdate, ListingResponse]):
     def __init__(self):
@@ -24,7 +25,19 @@ class ListingRouter(BaseRouter[Listing, ListingCreate, ListingUpdate, ListingRes
             listing: ListingCreate,
             db: AsyncSession = Depends(get_db)
         ):
-            db_listing = Listing(**listing.model_dump())
+            # category_id kontrolü
+            category = await db.get(Category, listing.category_id)
+            if not category:
+                raise HTTPException(status_code=400, detail="Invalid category_id")
+            
+            # user_id kontrolü
+            user = await db.get(User, listing.user_id)
+            if not user:
+                raise HTTPException(status_code=400, detail="Invalid user_id")
+            
+            allowed_fields = {c.name for c in Listing.__table__.columns if c.name != "created_at"}
+            data = {k: v for k, v in listing.model_dump().items() if k in allowed_fields}
+            db_listing = Listing(**data)
             db.add(db_listing)
             await db.flush()
             await db.commit()
@@ -33,12 +46,39 @@ class ListingRouter(BaseRouter[Listing, ListingCreate, ListingUpdate, ListingRes
 
         @self.router.get("/", response_model=List[ListingResponse])
         async def get_listings(
+            user_id: int | None = None,
             skip: int = 0,
             limit: int = 100,
             db: AsyncSession = Depends(get_db)
         ):
-            result = await db.execute(db.query(Listing).offset(skip).limit(limit))
-            listings = result.scalars().all()
+            query = (
+                select(
+                    Listing,
+                    User.first_name,
+                    func.substr(User.last_name, 1, 1).label('last_name_initial')
+                )
+                .join(User, Listing.user_id == User.id)
+                .offset(skip)
+                .limit(limit)
+            )
+            
+            if user_id is not None:
+                query = query.where(Listing.user_id == user_id)
+    
+            query = query.offset(skip).limit(limit)
+    
+            result = await db.execute(query)
+            rows = result.all()
+            
+            listings = []
+            for row in rows:
+                listing_dict = row[0].__dict__
+                listing_dict['user_info'] = {
+                    'first_name': row[1],
+                    'last_name_initial': row[2]
+                }
+                listings.append(ListingResponse(**listing_dict))
+            
             return listings
 
         @self.router.get("/{listing_id}", response_model=ListingResponse)

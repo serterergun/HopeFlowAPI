@@ -13,20 +13,20 @@ All endpoints are prefixed with `/api/v1`.
 ## User Endpoints
 - **Endpoint**: `/api/v1/users`
 - **Method**: `GET`
-- **Return**: `[{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string", "is_active": "boolean" }]`
+- **Return**: `[{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string"}]`
 
 - **Endpoint**: `/api/v1/users/{user_id}`
 - **Method**: `GET`
-- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string", "is_active": "boolean" }`
+- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string"}`
 
 - **Endpoint**: `/api/v1/users`
 - **Method**: `POST`
 - **Payload**: `{ "first_name": "string", "last_name": "string", "email": "string", "password": "string" }`
-- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string", "is_active": "boolean" }`
+- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string"}`
 
 - **Endpoint**: `/api/v1/users/{user_id}`
 - **Method**: `PUT`
-- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string", "is_active": "boolean" }`
+- **Return**: `{ "id": "integer", "first_name": "string", "last_name": "string", "email": "string"}`
 
 ## Company Endpoints
 - **GET /companies**: Retrieve a list of companies.

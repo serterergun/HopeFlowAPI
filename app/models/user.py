@@ -16,7 +16,6 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    is_active = Column(Boolean, default=False, nullable=False)
     
     # Relationships
     purchases = relationship("Purchase", back_populates="user", cascade="all, delete-orphan")
@@ -24,6 +23,9 @@ class User(Base):
     # ListingMessage relationships
     listing_messages = relationship("ListingMessage", back_populates="user", cascade="all, delete-orphan")
     baskets = relationship("Basket", back_populates="user", cascade="all, delete-orphan")
+
+    # İlişkiler
+    listings = relationship("Listing", back_populates="user")
 
     def set_password(self, password: str):
         """Hash and set the user's password"""

@@ -1,7 +1,11 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from datetime import datetime
 from .base import BaseSchema
+from .basket_item import BasketItemResponse
+
+if TYPE_CHECKING:
+    from .basket_item import BasketItemResponse
 
 class BasketBase(BaseSchema):
     user_id: int
@@ -18,4 +22,6 @@ class BasketResponse(BasketBase):
     items: List["BasketItemResponse"]
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
+BasketResponse.model_rebuild() 

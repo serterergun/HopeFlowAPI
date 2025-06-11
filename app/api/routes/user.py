@@ -36,7 +36,6 @@ class UserRouter(BaseRouter[User, UserCreate, UserUpdate, UserResponse]):
                     first_name=user.first_name,
                     last_name=user.last_name,
                     phone=user.phone if hasattr(user, 'phone') else None,
-                    is_active=user.is_active,
                     created_at=datetime.now(timezone.utc)
                 )
                 db_user.set_password(user.password)
